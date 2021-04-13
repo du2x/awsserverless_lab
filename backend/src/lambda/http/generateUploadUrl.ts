@@ -20,7 +20,7 @@ export const handler = middy(async (event: APIGatewayProxyEvent): Promise<APIGat
   const todoId = event.pathParameters.todoId
   const userId = getUserId(event)
   const uploadUrl = getUploadUrl(todoId)
-  const attachmentUrl: `https://${bucketName}.s3.amazonaws.com/${todoId}`
+  const attachmentUrl = `https://${bucketName}.s3.amazonaws.com/${todoId}`
   
   updateTodoUrl(attachmentUrl, userId, todoId)
   

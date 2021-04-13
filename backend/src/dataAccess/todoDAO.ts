@@ -44,7 +44,7 @@ export class TodoDAO {
         
     }
 
-    async updateUrl(imgUrl: string, userId: string, todoId: string): Promise<TodoItem> {
+    async updateUrl(imgUrl: string, userId: string, todoId: string): Promise<string> {
         await this.docClient.update({
             TableName: this.todosTable,
             Key: { 
@@ -58,8 +58,7 @@ export class TodoDAO {
             ReturnValues: "UPDATED_NEW"
         }).promise()
           
-        return updatedTodo
-        
+        return imgUrl;    
     }
 
     async getByUserIdAndTodoId(userId: string, todoId: string): Promise<TodoItem[]> {

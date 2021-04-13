@@ -22,7 +22,7 @@ export async function removeTodo(userId: string, todoId: string){
     return await todoDAO.remove(userId, todoId)
 }
 
-export async function updateTodoUrl(imgUrl: string, userId: string, todoId: string): Promise<TodoItem>{   
+export async function updateTodoUrl(imgUrl: string, userId: string, todoId: string): Promise<string>{   
     return await todoDAO.updateUrl(
         userId,
         todoId,

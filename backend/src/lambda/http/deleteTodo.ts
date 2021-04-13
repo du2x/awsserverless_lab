@@ -1,5 +1,4 @@
 import 'source-map-support/register'
-import * as AWS from 'aws-sdk'
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import { getUserId } from '../utils'
 import { createLogger } from '../../utils/logger'

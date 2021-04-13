@@ -5,7 +5,7 @@
   "properties": {
     "name": {
       "type": "string",
-      "minLength": 5,
+      "minLength": 3,
       "maxLength": 40
     },
     "dueDate": {
