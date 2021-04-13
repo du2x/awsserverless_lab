@@ -6,6 +6,7 @@ import { getUserId } from '../utils'
 import { TodoItem } from '../../models/TodoItem'
 import * as middy from 'middy'
 import { cors } from 'middy/middlewares'
+import { getAllTodos } from '../../business/todo'
 
 
 const logger = createLogger('getTodos')
@@ -18,18 +19,9 @@ const todosTable = process.env.TODOS_TABLE
 
 
 export const handler = middy(async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-  logger.info('Processing event: ', event)
-  const userId = getUserId(event)
-  
-  const result = await docClient.query({
-    TableName: todosTable,
-    KeyConditionExpression: 'userId = :userId',
-    ExpressionAttributeValues: {
-        ':userId': userId
-    }
-  }).promise()
-  
-  const items = result.Items as TodoItem[]
+  logger.info('Processing event [GetTodos expected]: ', event)
+  const userId = getUserId(event)  
+  const items = getAllTodos(userId)
 
   return {
     statusCode: 200,

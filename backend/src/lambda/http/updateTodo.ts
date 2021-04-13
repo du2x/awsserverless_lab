@@ -9,14 +9,12 @@ import { getUserId } from '../utils'
 import * as middy from 'middy'
 import { cors } from 'middy/middlewares'
 import { TodoItem } from '../../models/TodoItem'
+import { updateTodo } from '../../business/todo'
 
 const logger = createLogger('updateTodo')
 
 const AWSXRay = require('aws-xray-sdk')
 const XAWS = AWSXRay.captureAWS(AWS)
-
-const docClient = new XAWS.DynamoDB.DocumentClient()
-const todosTable = process.env.TODOS_TABLE
 
 
 export const handler = middy(async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
@@ -25,40 +23,7 @@ export const handler = middy(async (event: APIGatewayProxyEvent): Promise<APIGat
   const userId = getUserId(event)
   const updatedTodo: UpdateTodoRequest = JSON.parse(event.body)
   
-  const resultGetTodo = await docClient.query({
-    TableName: todosTable,
-    KeyConditionExpression: 'userId = :userId AND todoId = :todoId',
-    ExpressionAttributeValues: {
-        ':userId': userId,
-        ':todoId': todoId
-    }
-  }).promise()
-
-  const item = resultGetTodo.Items as TodoItem[]
-
-  if (item.length === 0){
-    return {
-        statusCode: 404,
-        body: 'Todo not found'
-      }
-  }
-
-  const items = await docClient.update({
-      TableName: todosTable,
-      Key: { 
-          todoId: todoId, 
-          userId: userId 
-        },
-      ExpressionAttributeNames: {"#N": "name"},
-      UpdateExpression: "set #N = :name, dueDate = :dueDate, done = :done",
-      ExpressionAttributeValues: {
-          ":name": updatedTodo.name,
-          ":dueDate": updatedTodo.dueDate,
-          ":done": updatedTodo.done,
-      },
-      ReturnValues: "UPDATED_NEW"
-  }).promise()  
-
+  const items = updateTodo(userId, todoId, updatedTodo)
   return {
     statusCode: 200,
     body: JSON.stringify(items)

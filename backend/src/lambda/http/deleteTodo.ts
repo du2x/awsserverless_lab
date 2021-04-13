@@ -5,20 +5,19 @@ import { getUserId } from '../utils'
 import { createLogger } from '../../utils/logger'
 import * as middy from 'middy'
 import { cors } from 'middy/middlewares'
+import { removeTodo } from '../../business/todo'
 
-const AWSXRay = require('aws-xray-sdk')
-const XAWS = AWSXRay.captureAWS(AWS)
 
 const logger = createLogger('deleteTodo')
 
 export const handler = middy(async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   const todoId = event.pathParameters.todoId
-  const docClient = new XAWS.DynamoDB.DocumentClient()
-  const todosTable = process.env.TODOS_TABLE
+  const userId = getUserId(event)
 
-  logger.info('Processing event (delete todo expected): ', event)
+  logger.info('Processing event (DeleteTodo expected): ', event)
+  
   try{
-    removeTodo(todoId, event)
+    removeTodo(todoId, userId)
     return {
       statusCode: 200,
       body: ''
@@ -31,27 +30,6 @@ export const handler = middy(async (event: APIGatewayProxyEvent): Promise<APIGat
     }
   }
 
-  async function removeTodo(todoId: string, event: any){
-    const userId = getUserId(event)
-    const params = {
-      TableName: todosTable,
-      Key: {
-        todoId, 
-        userId
-      }
-    }
-
-    return await docClient.delete(params, function(err, data) {
-      if (err) {
-        logger.error("Unable to delete item", JSON.stringify(err))
-        throw new Error('could not delete item');
-      }
-      else {
-        logger.log("DeleteItem succeeded", JSON.stringify(data))
-      }
-    }
-    ).promise()        
-  }  
 }) 
 
 handler.use(
